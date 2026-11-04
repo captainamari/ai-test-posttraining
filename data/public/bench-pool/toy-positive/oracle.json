@@ -1,0 +1,18 @@
+{
+  "status": "approved",
+  "target_branch": "正整数为真；零、负数、布尔值为假",
+  "evidence": "rules",
+  "must_call": [
+    "is_positive_integer"
+  ],
+  "expect": [
+    {
+      "kind": "assert_value",
+      "target": "is_positive_integer",
+      "value": 1
+    }
+  ],
+  "cleanup_required": [],
+  "must_not_call": [],
+  "notes": "静态判定只能确认正例；零、负数、True 三个反例需要执行或人工复核。"
+}

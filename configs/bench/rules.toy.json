@@ -1,0 +1,31 @@
+{
+  "name": "toy-unittest-v0.1",
+  "base_class": "TestCase",
+  "required_class_attrs": [],
+  "required_methods": [],
+  "test_method_count": {
+    "min": 1
+  },
+  "required_imports": [
+    "unittest"
+  ],
+  "super_calls": {},
+  "forbidden_calls": [
+    "print"
+  ],
+  "assert_min_args": {
+    "assertEqual": 3,
+    "assertNotEqual": 3,
+    "assertIn": 3,
+    "assertTrue": 2,
+    "assertFalse": 2
+  },
+  "require_assert_message": false,
+  "allowed_names": [],
+  "identity_attrs": [
+    "script_id"
+  ],
+  "forbid_reference_identity": true,
+  "forbid_ungrounded_calls": true,
+  "soft_checks": []
+}

@@ -1,0 +1,18 @@
+{
+  "instance_id": "toy-positive",
+  "split": "test",
+  "source_group": "integer-validation",
+  "tags": {
+    "flow": "normal",
+    "domain": "toy",
+    "scenario_type": "param_validation",
+    "difficulty": "medium"
+  },
+  "inputs": {
+    "rules": "is_positive_integer(value) 仅对正整数返回 True，bool 虽然是 Python int 子类，也必须返回 False。",
+    "scenario": "覆盖正整数 1、零、负数和布尔值 True。",
+    "api": "from toy_api import is_positive_integer；返回 bool。",
+    "framework": "使用 Python 标准库 unittest；测试类继承 unittest.TestCase；输出完整文件。",
+    "reference": "无历史参考脚本；本任务只使用列出的 API。"
+  }
+}

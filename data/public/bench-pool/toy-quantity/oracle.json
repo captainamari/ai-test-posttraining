@@ -1,0 +1,18 @@
+{
+  "status": "approved",
+  "target_branch": "非数字输入被拒绝（异常流）",
+  "evidence": "rules",
+  "must_call": [
+    "parse_quantity"
+  ],
+  "expect": [
+    {
+      "kind": "assert_contains",
+      "target": "exception",
+      "value": "digits"
+    }
+  ],
+  "cleanup_required": [],
+  "must_not_call": [],
+  "notes": "异常流：断言错误消息中的约定文案，而不只是断言抛出了异常。"
+}

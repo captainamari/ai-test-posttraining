@@ -1,0 +1,57 @@
+{
+  "name": "toy-taxonomy-v0.1",
+  "splits": [
+    "dev",
+    "test",
+    "holdout_domain",
+    "fresh"
+  ],
+  "dimensions": {
+    "flow": {
+      "required": true,
+      "values": [
+        "normal",
+        "exception"
+      ]
+    },
+    "domain": {
+      "required": true,
+      "values": []
+    },
+    "scenario_type": {
+      "required": false,
+      "values": [
+        "param_validation",
+        "limit",
+        "state",
+        "idempotent",
+        "cleanup",
+        "format",
+        "other"
+      ]
+    },
+    "difficulty": {
+      "required": false,
+      "values": [
+        "easy",
+        "medium",
+        "hard"
+      ]
+    },
+    "api_novelty": {
+      "required": false,
+      "values": [
+        "seen",
+        "unseen"
+      ]
+    },
+    "length_bucket": {
+      "required": false,
+      "values": [
+        "<4k",
+        "4k-8k",
+        ">8k"
+      ]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Initial reproducibility profile; complete training not validated by the authoring session.
+# Install CPU torch separately as documented, then install this file.
+transformers==4.57.1
+peft==0.17.1
+accelerate==1.10.1

@@ -1,0 +1,18 @@
+{
+  "instance_id": "toy-tag",
+  "split": "dev",
+  "source_group": "tag-formatting",
+  "tags": {
+    "flow": "normal",
+    "domain": "toy",
+    "scenario_type": "format",
+    "difficulty": "easy"
+  },
+  "inputs": {
+    "rules": "normalize_tag(value) 删除首尾空白并转为小写，不改变内部空格。",
+    "scenario": "输入首尾带空格的大写标签，检查输出为小写且无首尾空格。",
+    "api": "from toy_api import normalize_tag；value 是字符串。",
+    "framework": "使用 Python 标准库 unittest；测试类继承 unittest.TestCase；输出完整文件。",
+    "reference": "无历史参考脚本；本任务只使用列出的 API。"
+  }
+}

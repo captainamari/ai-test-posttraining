@@ -1,0 +1,18 @@
+{
+  "instance_id": "toy-quantity",
+  "split": "dev",
+  "source_group": "quantity-parsing",
+  "tags": {
+    "flow": "exception",
+    "domain": "toy",
+    "scenario_type": "param_validation",
+    "difficulty": "easy"
+  },
+  "inputs": {
+    "rules": "parse_quantity(text) 只接受由数字组成的字符串；否则抛出 ValueError，消息包含 digits。",
+    "scenario": "传入非数字字符串 abc，预期抛出 ValueError，且错误消息包含 digits。",
+    "api": "from toy_api import parse_quantity；text 是字符串，返回 int。",
+    "framework": "使用 Python 标准库 unittest；测试类继承 unittest.TestCase；输出完整文件。",
+    "reference": "无历史参考脚本；本任务只使用列出的 API。"
+  }
+}

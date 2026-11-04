@@ -1,0 +1,18 @@
+{
+  "status": "approved",
+  "target_branch": "首尾空白被删除、字母转小写、内部空格保留",
+  "evidence": "rules",
+  "must_call": [
+    "normalize_tag"
+  ],
+  "expect": [
+    {
+      "kind": "assert_value",
+      "target": "normalize_tag",
+      "value": "ab c"
+    }
+  ],
+  "cleanup_required": [],
+  "must_not_call": [],
+  "notes": "值 ab c 同时体现小写与保留内部空格；换成其他合法输入时请人工复核。"
+}

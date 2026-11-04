@@ -1,0 +1,23 @@
+{
+  "model_id": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "data": [
+    "data/private/train/B002.jsonl"
+  ],
+  "exclude_manifests": [],
+  "model_lock": "models/model-lock.json",
+  "max_length": 8192,
+  "max_steps": 30,
+  "learning_rate": 0.0001,
+  "gradient_accumulation_steps": 1,
+  "threads": 16,
+  "seed": 42,
+  "lora_r": 8,
+  "lora_alpha": 16,
+  "target_modules": [
+    "q_proj",
+    "v_proj"
+  ],
+  "attn_implementation": "sdpa",
+  "gradient_checkpointing": true,
+  "generation": {}
+}
