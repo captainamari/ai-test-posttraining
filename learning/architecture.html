@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Post-training 实验架构 · ai-test-posttraining</title>
+<style>
+:root{color-scheme:dark;--bg:#090f1a;--panel:#111b2b;--panel2:#17263a;--line:#344960;--text:#eaf2fb;--muted:#9fb1c5;--blue:#65b5ff;--purple:#c5a5ff;--green:#69e1b0;--amber:#f3c879}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1a2945 0%,transparent 46%),var(--bg);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text)}
+main{max-width:1330px;margin:auto;padding:36px 24px 70px}h1{font-size:clamp(26px,4vw,42px);margin:3px 0 8px;letter-spacing:-.04em}h2{font-size:22px;margin:0 0 12px}h3{font-size:16px;margin:0 0 6px}p{margin:0;color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);font-weight:700}.intro{max-width:850px;margin:14px 0 25px}.legend{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}.legend span,.chip{font-size:12px;border:1px solid var(--line);padding:5px 10px;border-radius:100px;background:#111c2a}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:18px;align-items:start}.diagram,.inspector,.foot{background:#101a2a;border:1px solid #2c4059;border-radius:18px;padding:22px;box-shadow:0 12px 45px #0003}.diagram{overflow:hidden}.lanes{display:grid;grid-template-columns:1fr 1fr;gap:22px}.lane{min-width:0}.lane h2{display:flex;align-items:center;gap:9px;font-size:17px;margin-bottom:14px}.lane small{font-weight:500;color:var(--muted)}.block{width:100%;text-align:left;display:block;background:#172438;border:1px solid #3b506c;border-left:4px solid var(--accent);border-radius:12px;color:var(--text);padding:13px 14px;cursor:pointer;transition:.15s}.block:hover,.block:focus-visible,.block.active{border-color:var(--accent);background:#20334b;outline:none;transform:translateY(-1px)}.block strong{font-size:15px}.block code{display:block;color:var(--muted);font-size:11px;white-space:normal;overflow-wrap:anywhere;margin-top:5px}.block .number{color:var(--accent);font-weight:700;font-size:11px;letter-spacing:.08em}.flow-arrow{height:30px;display:flex;align-items:center;justify-content:center;color:#7199bd;font-size:22px;position:relative}.flow-arrow:before{content:"";position:absolute;height:18px;border-left:1px dashed #58758f;top:0}.flow-arrow span{position:relative;top:10px;background:var(--panel);line-height:1}.section-title{margin:18px 0 11px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}.outputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.output{border:1px dashed #4d657d;background:#112132;border-radius:10px;padding:12px;font-size:12px}.output strong{display:block}.output code{font-size:11px;overflow-wrap:anywhere;color:var(--muted)}.cross-note{border:1px dashed #506680;border-radius:12px;margin:20px 0;padding:12px;text-align:center;color:var(--muted);font-size:13px}.inspector{position:sticky;top:18px;min-height:390px}.inspector .tag{font-size:11px;color:var(--green);letter-spacing:.1em;font-weight:700;text-transform:uppercase}.inspector h2{margin:12px 0}.inspector .detail{color:#d7e6f6}.inspector dl{margin:18px 0}.inspector dt{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-top:15px}.inspector dd{margin:4px 0 0;overflow-wrap:anywhere}.inspector code{color:#a6d7ff;font-size:12px}.inspector a,.foot a{color:#92caff}.inspector .hint{border-top:1px solid var(--line);padding-top:14px;margin-top:20px;font-size:12px}.foot{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:24px}.foot p{margin-top:8px}.foot ul{padding-left:20px;color:var(--muted)}.foot li{margin:6px 0}.ribbon{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}.ribbon .chip{border-color:#425b70}.single{grid-column:1/-1}
+@media(max-width:970px){.layout{grid-template-columns:1fr}.inspector{position:static;min-height:0}}@media(max-width:620px){main{padding:23px 14px 48px}.lanes,.foot,.outputs{grid-template-columns:1fr}.diagram,.inspector,.foot{padding:16px}.lane+.lane{border-top:1px solid var(--line);padding-top:18px}}
+@media(prefers-reduced-motion:reduce){.block{transition:none}}
+</style>
+</head>
+<body><main>
+<div class="eyebrow">Learning / Interactive architecture · v0.1</div>
+<h1>从存量测试脚本到 Post-training 实验</h1>
+<p class="intro">这张图对应仓库现有的 SFT + LoRA 链路。点击任意模块，右侧会显示<strong style="color:#eaf2fb">职责、代码位置、参数与学习问题</strong>。左侧训练流与右侧评测流共用输入构造逻辑，但训练数据与冻结 benchmark 相互隔离。</p>
+<div class="legend"><span><i style="background:var(--blue)"></i>数据与编码</span><span><i style="background:var(--purple)"></i>训练与模型</span><span><i style="background:var(--green)"></i>推理与评测</span><span><i style="background:var(--amber)"></i>实验记录</span></div>
+<div class="layout">
+<section class="diagram" aria-label="训练与评测架构">
+<div class="lanes">
+<div class="lane"><h2>01 / 训练路径 <small>Data → SFT → Adapter</small></h2>
+<button class="block" data-id="source" style="--accent:var(--blue)"><span class="number">T01 · 输入来源</span><br><strong>存量测试脚本 + 规则 / 契约</strong><code>候选构建 → 审核 → data/private/train/*.jsonl</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="audit" style="--accent:var(--blue)"><span class="number">T02 · 数据门禁</span><br><strong>load_data / audit / leakage</strong><code>split、source_group、语法、token 长度</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="encode" style="--accent:var(--blue)"><span class="number">T03 · 提示与监督标签</span><br><strong>messages → chat template → labels</strong><code>prompt: -100 / target: supervised tokens</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="train" style="--accent:var(--purple)"><span class="number">T04 · 优化器与 Trainer</span><br><strong>CPU FP32 · SFT · AdamW</strong><code>batch=1 · max_steps · lr · accumulation</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="lora" style="--accent:var(--purple)"><span class="number">T05 · LoRA 适配</span><br><strong>冻结基础模型，更新 A/B 低秩矩阵</strong><code>r=8 · α=16 · q_proj, v_proj</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="artifact" style="--accent:var(--amber)"><span class="number">T06 · 训练产物</span><br><strong>Adapter + 运行证据</strong><code>runs/train/E00X/{adapter,metrics.jsonl,status.json,...}</code></button>
+</div>
+<div class="lane"><h2>02 / 对照评测 <small>Suite → B0/B1 → Score</small></h2>
+<button class="block" data-id="suite" style="--accent:var(--blue)"><span class="number">E01 · 基准准备</span><br><strong>独立冻结 benchmark suite</strong><code>task.json · gold.py · oracle.json · manifest</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="input" style="--accent:var(--blue)"><span class="number">E02 · 共用提示构造</span><br><strong>messages + tokenizer</strong><code>训练、B0、B1 使用一致的输入定义</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="generation" style="--accent:var(--green)"><span class="number">E03 · 两个生成组</span><br><strong>B0 基础模型 / B1 基础模型 + Adapter</strong><code>do_sample=False · max_new_tokens=2048</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="scores" style="--accent:var(--green)"><span class="number">E04 · 自动评分</span><br><strong>L0 → L1 → L2 → L2.5</strong><code>语法/框架/依据/Oracle → auto_pass</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="review" style="--accent:var(--green)"><span class="number">E05 · 执行与人工审查</span><br><strong>L3 执行 / L4 评审</strong><code>review.csv · 实际执行结果需另行录入</code></button>
+<div class="flow-arrow"><span>↓</span></div>
+<button class="block" data-id="compare" style="--accent:var(--amber)"><span class="number">E06 · 实验比较</span><br><strong>compare.py → 下一轮假设</strong><code>配对任务 / 分层计数 / 失败原因</code></button>
+</div>
+</div>
+<div class="cross-note">关联关系：T03 与 E02 共用 <code>common.messages()</code>；T06 的 adapter 进入 E03 的 B1；T01 训练样本与 E01 基准实例必须隔离。</div>
+<div class="section-title">训练关键参数（仓库模板值；服务器 112 steps 不一定已提交）</div>
+<div class="ribbon"><span class="chip">model: Qwen2.5-Coder-0.5B-Instruct</span><span class="chip">max_length: 8192</span><span class="chip">max_steps: 30（本轮服务器实验：112）</span><span class="chip">learning_rate: 1e-4</span><span class="chip">grad_accum: 1</span><span class="chip">CPU · FP32 · SDPA</span></div>
+</section>
+<aside class="inspector" aria-live="polite"><div class="tag" id="detail-tag">模块说明 / T04</div><h2 id="detail-title">优化器与 Trainer</h2><p class="detail" id="detail-desc"></p><dl><dt>源码 / 数据路径</dt><dd id="detail-path"></dd><dt>关键参数</dt><dd id="detail-params"></dd><dt>下一步学习问题</dt><dd id="detail-question"></dd></dl><p class="hint">模块编号可用于后续讨论，例如：“详细讲解 T04，解释每次 optimizer step 和学习率变化”。<br><br>对应教材：<a href="01-training-pipeline.md">训练链路</a> · <a href="02-parameter-reference.md">参数字典</a> · <a href="03-calculations-and-experiments.md">计算与实验</a></p></aside>
+</div>
+<section class="foot"><div><h3>颜色和数据流的含义</h3><p>纵向箭头表示主要处理顺序，左右两条路径之间的依赖通过图下方说明标注。训练和评测的文件不是同一个 JSONL；生成代码不代表已经在真实业务环境中执行。</p></div><div><h3>打开方法</h3><p>从仓库下载 <code>learning/architecture.html</code> 后用浏览器打开即可。此文件不请求网络、不依赖 CDN。GitHub 的源码页面只显示 HTML 源码，不能直接作为交互页面运行。</p></div><div class="single"><h3>已实现与未实现</h3><p>已实现：单进程 CPU FP32 LoRA 训练、存储 adapter、B0/B1 生成、L0–L2.5 自动评分、可录入 L3/L4 评审结果。<strong style="color:#eaf2fb">本图不意味着</strong>已经有自动执行测试脚本的 L3 引擎、验证集 loss、checkpoint 选择、DPO 或 RL 训练。</p></div></section>
+</main>
+<script>
+const modules={
+source:["T01","存量脚本与监督样本","历史测试代码及业务规则经候选构建和人工审核后成为 train JSONL。每行含五段输入与 target；候选、训练、基准需分流。","data/private/build/ · data/private/train/B002.jsonl · docs/01-data.md","source_group、review_status、origin、inputs、target","真实 N 和独立 source_group 分别是多少？为什么 source_group 比行数重要？"],
+audit:["T02","数据门禁","验证样本字段、split、来源、目标语法及训练/benchmark 隔离。token 长度审计可单独运行；通过门禁不等于业务内容正确。","scripts/common.py:load_data/check_benchmark_exclusion · scripts/audit_data.py","max_length、exclude_manifests、源数据 SHA256","哪些问题是自动门禁可发现的，哪些必须人工审核？"],
+encode:["T03","聊天模板与监督标签","将 rules、scenario、api、framework、reference 拼成 system/user 消息，再编码 prompt + assistant target。只有答案 token 参与 SFT loss。","scripts/common.py:messages/encode_sample","max_length=8192、labels=-100、tokenizer/chat template","为什么 input token 不参与 loss，却仍影响前向计算和显存？"],
+train:["T04","Trainer / AdamW / 学习率","Trainer 对样本做前向计算、反向传播、累积梯度并更新 LoRA；每步写 loss、grad_norm、learning_rate。当前不计算独立验证集 loss。","scripts/train.py:main / TrainingArguments / Journal","max_steps=30（服务器实验 112）、lr=1e-4、batch=1、gradient_accumulation_steps=1、optim=adamw_torch","112 steps 如何换算 epoch？更改 max_steps 为什么也改变 LR 衰减轨迹？"],
+lora:["T05","LoRA 低秩适配器","使用 PEFT 为选定线性层添加低秩 A/B；冻结基础模型，训练新增参数。模型权重与长序列激活仍需内存。","scripts/train.py:get_peft_model / LoraConfig","r=8、alpha=16、dropout=0、target_modules=[q_proj,v_proj]","为什么 rank 增加影响参数量？alpha/r 和学习率是什么关系？"],
+artifact:["T06","训练结果与复现记录","训练结束保存 adapter、tokenizer、状态、配置、模型锁、数据 manifest、token 长度与每步训练日志。","runs/train/E00X/adapter/ · metrics.jsonl · status.json · config.json · parameters.json","steps、train_samples、epochs、adapter_max_abs_change","如何验证真的发生了权重更新？为什么不能仅凭 loss 判断效果？"],
+suite:["E01","冻结 benchmark","从独立候选池构建只读 suite，每个实例包含任务、gold、oracle 和审核来源；与训练池按 source_group 等隔离。","scripts/bench/build_suite.py · data/private/benchmark/suites/v0.1/","manifest SHA、scorer_version、source_group","为什么先划分 benchmark，再抽取训练数据？"],
+input:["E02","评测共用提示","在 benchmark 任务上调用与训练相同的 messages() 和 tokenizer，避免 prompt 格式不一致；但 benchmark 的目标答案不会输入生成器。","scripts/bench/run_generate.py · scripts/common.py:messages","model_lock、config、messages、tokenizer","为什么改 messages() 后需要重新训练并发布新 benchmark 版本？"],
+generation:["E03","B0/B1 同条件生成","B0 载入未训练模型；B1 在同一基座上载入保存的 LoRA adapter。两组使用相同 suite、生成长度与解码配置。","scripts/generate.py:load_model/generate_items · scripts/bench/run_generate.py","do_sample=False、max_new_tokens=2048、generation={}、adapter_run","max_length 和 max_new_tokens 的区别？为什么超长生成会影响后续所有指标？"],
+scores:["E04","L0–L2.5 机器评分","对输出做围栏、截断、语法、框架、复制/编造调用及 Oracle 检查；auto_pass 是严格合取条件，静态成功并不证明真实业务成功。","scripts/bench/benchlib.py:score_candidate/match_expect · scripts/bench/score.py","fence_free、not_truncated、framework_ok、oracle_pass、auto_pass","哪一层失败会使完整通过率归零？AST 匹配的边界在哪里？"],
+review:["E05","执行与人工审核","L3 在正确环境里执行脚本并记录结果；L4 按剧本忠实度、人工修复时间记录。现有仓库提供 review.csv，不自动执行内网脚本。","scripts/bench/score.py · review.csv · docs/05-benchmark.md","run_status、environment_error、follows_scenario、repair_minutes","为什么运行通过不能替代断言完整性和人工审核？"],
+compare:["E06","对照报告与下一轮假设","在同一冻结基准与评分版本上比较 B0/B1 的分层计数、配对变化及逐任务失败原因；避免只观察单一总分。","scripts/bench/compare.py · runs/records/E001-compare.md","manifest、scorer_version、auto_pass、各层指标","max_steps 变化后，如何区分学习效果与实验波动？"]
+};
+const $=id=>document.getElementById(id);function activate(id){const m=modules[id];if(!m)return;document.querySelectorAll('.block').forEach(b=>{const on=b.dataset.id===id;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false')});$('detail-tag').textContent='模块说明 / '+m[0];$('detail-title').textContent=m[1];$('detail-desc').textContent=m[2];$('detail-path').textContent=m[3];$('detail-params').textContent=m[4];$('detail-question').textContent=m[5]}
+document.querySelectorAll('.block').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.id)));activate('train');
+</script>
+</body></html>
